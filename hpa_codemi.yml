@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: dumbflix-fe
+  labels:
+    app: dumbflix-fe
+spec:
+  selector:
+    matchLabels:
+      app: dumbflix-fe
+  template:
+    metadata:
+      labels:
+        app: dumbflix-fe
+    spec:
+      containers:
+        - name: dumbflix-fe
+          image: peruvian/dumbflix-fe:1.0
+          ports:
+          - containerPort: 3000
+
+---
+
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hpa-dumbflix
+spec:
+  minReplicas: 3
+  maxReplicas: 5
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dumbflix-fe
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 70
